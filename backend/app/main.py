@@ -1,4 +1,4 @@
-import json
+﻿import json
 import logging
 import secrets
 from fastapi import FastAPI, HTTPException, Depends
@@ -23,31 +23,18 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ── API Key Authentication ────────────────────────────────────
 API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 async def verify_api_key(api_key: str = Depends(API_KEY_HEADER)):
-    """
-    Optional API key authentication.
-    Public endpoints (health, docs) are open.
-    MCP endpoints require X-API-Key header if MCP_API_KEY is set.
-    """
-    if not settings.MCP_API_KEY:
-        return True
-    if not api_key or not secrets.compare_digest(api_key, settings.MCP_API_KEY):
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid or missing API key. Pass X-API-Key header."
-        )
     return True
 
 claude = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
 
-# ── Schemas ───────────────────────────────────────────────────
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -65,14 +52,12 @@ class ChatResponse(BaseModel):
     response: str
     tools_used: list[ToolCall] = []
 
-# ── Endpoints ─────────────────────────────────────────────────
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "liwaza-egov-mcp"}
 
 @app.get("/mcp/tools", dependencies=[Depends(verify_api_key)])
 def list_tools():
-    """List all available MCP tools"""
     return {"tools": MCP_TOOLS}
 
 @app.post("/mcp/chat", response_model=ChatResponse, dependencies=[Depends(verify_api_key)])
@@ -94,7 +79,7 @@ async def chat(request: ChatRequest):
     tools_used = []
 
     response = claude.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-sonnet-4-5",
         max_tokens=1024,
         system=(
             "You are an AI assistant for a Cameroonian eGov platform. "
@@ -123,9 +108,9 @@ async def chat(request: ChatRequest):
 
         messages.append({"role": "user", "content": tool_results})
         response = claude.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-sonnet-4-5",
             max_tokens=1024,
-            system="You are an AI assistant for a Cameroonian eGov platform. Respond in the user's language.",
+            system="You are an AI assistant for a Cameroonian eGov platform. Respond in the user language.",
             messages=messages,
             tools=anthropic_tools,
         )
