@@ -7,7 +7,7 @@ async def get_population_data(years: int = 5) -> dict:
         f"/indicator/SP.POP.TOTL?format=json&per_page={years}&mrv={years}"
     )
     async with httpx.AsyncClient() as client:
-        response = client.get(url, timeout=10.0)
+        response = await client.get(url, timeout=10.0)
         response.raise_for_status()
         data = response.json()
     

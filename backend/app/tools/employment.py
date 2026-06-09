@@ -7,7 +7,7 @@ async def get_unemployment_data(years: int = 5) -> dict:
         f"/indicator/SL.UEM.TOTL.ZS?format=json&per_page={years}&mrv={years}"
     )
     async with httpx.AsyncClient() as client:
-        response = client.get(url, timeout=10.0)
+        response = await client.get(url, timeout=10.0)
         response.raise_for_status()
         data = response.json()
     

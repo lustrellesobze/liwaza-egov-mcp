@@ -1,0 +1,109 @@
+# Architecture Decision Document
+
+## Current Architecture
+
+### Architecture Diagram
+┌─────────────────────────────────────────────────────────┐
+│                    USER BROWSER                         │
+│              React Frontend (MCP Client)                │
+│                  Vercel — Port 443                      │
+└─────────────────────┬───────────────────────────────────┘
+│ HTTPS (REST/JSON)
+▼
+┌─────────────────────────────────────────────────────────┐
+│               Python MCP Server                         │
+│            FastAPI + Anthropic SDK                      │
+│                Render — Port 8000                       │
+└──────────┬──────────────────────┬───────────────────────┘
+│                      │
+▼                      ▼
+┌──────────────────┐   ┌─────────────────────────────────┐
+│  Anthropic API   │   │       World Bank API             │
+│  Claude Sonnet   │   │  api.worldbank.org/v2/country/  │
+│  (LLM + Tools)   │   │  CMR — Public, no auth needed   │
+└──────────────────┘   └─────────────────────────────────┘
+### Service Interactions
+
+1. User types a question in natural language (FR or EN)
+2. React frontend sends POST /mcp/chat to the MCP Server
+3. MCP Server calls Claude Sonnet with the 5 MCP tools defined
+4. Claude decides which tool(s) to call based on the user intent
+5. MCP Server executes the tool(s) against the World Bank API
+6. Real data is returned to Claude, which formulates a response
+7. Final response + tool execution details sent back to frontend
+8. Frontend displays the response and tool execution visibility
+
+### Deployment Topology
+
+- **Frontend**: Vercel (CDN, global edge network)
+- **Backend**: Render (free tier, auto-deploy from GitHub)
+- **External APIs**: Anthropic API + World Bank API (public)
+- **CI/CD**: GitHub Actions (test + deploy on push to main)
+
+### Data Flow
+User Input → React → POST /mcp/chat → Claude Sonnet
+→ tool_use decision → execute_tool() → World Bank API
+→ real JSON data → Claude formats response
+→ ChatResponse → React renders message + tool details
+## Why This Architecture?
+
+### Why MCP?
+MCP (Model Context Protocol) is the emerging standard for AI-native
+backends. It separates tool definitions from business logic, making
+the system extensible. Adding a new government data source means
+adding one tool — no frontend changes needed.
+
+### Why World Bank API?
+- Fully public, no authentication required
+- Real data updated regularly
+- Covers all key Cameroon economic indicators
+- DGI and GUCE Cameroon have no stable public API
+
+### Why Monorepo?
+At this scale, frontend and backend are tightly coupled through
+shared MCP tool schemas. A monorepo simplifies:
+- Single CI/CD pipeline
+- Shared documentation
+- Easier onboarding for new developers
+
+Disadvantages: scaling teams independently becomes harder.
+At 10+ engineers, splitting into separate repos would be justified.
+
+### Why Vercel + Render?
+- Both have generous free tiers
+- Auto-deploy from GitHub with zero configuration
+- Vercel is optimized for React/Vite frontends
+- Render supports Python/FastAPI natively
+
+## Scalability: 100 → 100,000 Users
+
+### 100 users (current)
+- Single Render instance
+- No caching needed
+- Direct World Bank API calls
+
+### 1,000 users
+- Add Redis cache for World Bank responses (TTL: 1 hour)
+- World Bank data doesn't change daily — caching is safe
+- Add rate limiting per IP
+
+### 10,000 users
+- Horizontal scaling on Render (multiple instances)
+- Background jobs for pre-fetching popular indicators
+- CDN for static frontend assets (already handled by Vercel)
+- Database for conversation history (PostgreSQL)
+
+### 100,000 users
+- Kubernetes deployment (GKE or EKS)
+- Message queue (Redis/RabbitMQ) for LLM requests
+- Separate microservices: chat service, data service, auth service
+- Observability: Prometheus + Grafana + ELK stack
+- Cost optimization: cache LLM responses for identical queries
+
+## Security Considerations
+
+- API keys stored in environment variables only
+- CORS configured to allow only frontend domain in production
+- Input validation via Pydantic on all endpoints
+- No user data stored (stateless architecture)
+- HTTPS enforced on both Vercel and Render

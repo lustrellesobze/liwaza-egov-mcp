@@ -4,7 +4,7 @@ from app.config import settings
 async def get_country_info() -> dict:
     url = f"{settings.WORLDBANK_BASE_URL}/country/{settings.COUNTRY_CODE}?format=json"
     async with httpx.AsyncClient() as client:
-        response = client.get(url, timeout=10.0)
+        response = await client.get(url, timeout=10.0)
         response.raise_for_status()
         data = response.json()
     

@@ -1,7 +1,9 @@
-import logging
 import json
-from fastapi import FastAPI, HTTPException
+import logging
+import secrets
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 from typing import Optional
 import anthropic
@@ -14,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Liwaza eGov MCP API",
-    description="AI-native eGov platform for Cameroon powered by MCP",
+    description="AI-native eGov platform for Cameroon",
     version="1.0.0"
 )
 
@@ -25,9 +27,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+# ── API Key Authentication ────────────────────────────────────
+API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
 
-# ── Schémas Pydantic ──────────────────────────────────────────
+async def verify_api_key(api_key: str = Depends(API_KEY_HEADER)):
+    """
+    Optional API key authentication.
+    Public endpoints (health, docs) are open.
+    MCP endpoints require X-API-Key header if MCP_API_KEY is set.
+    """
+    if not settings.MCP_API_KEY:
+        return True
+    if not api_key or not secrets.compare_digest(api_key, settings.MCP_API_KEY):
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing API key. Pass X-API-Key header."
+        )
+    return True
+
+claude = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+
+# ── Schemas ───────────────────────────────────────────────────
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -45,32 +65,23 @@ class ChatResponse(BaseModel):
     response: str
     tools_used: list[ToolCall] = []
 
-# ── Endpoints ────────────────────────────────────────────────
+# ── Endpoints ─────────────────────────────────────────────────
 @app.get("/health")
 def health():
     return {"status": "ok", "service": "liwaza-egov-mcp"}
 
-@app.get("/mcp/tools")
+@app.get("/mcp/tools", dependencies=[Depends(verify_api_key)])
 def list_tools():
-    """Liste tous les outils MCP disponibles"""
+    """List all available MCP tools"""
     return {"tools": MCP_TOOLS}
 
-@app.post("/mcp/chat", response_model=ChatResponse)
+@app.post("/mcp/chat", response_model=ChatResponse, dependencies=[Depends(verify_api_key)])
 async def chat(request: ChatRequest):
-    """
-    Point d'entrée principal : reçoit un message utilisateur,
-    orchestre les outils MCP via Claude, retourne la réponse.
-    """
     logger.info(f"Chat request: {request.message}")
-    
-    # Construction des messages pour Claude
-    messages = [
-        {"role": m.role, "content": m.content}
-        for m in (request.history or [])
-    ]
+
+    messages = [{"role": m.role, "content": m.content} for m in (request.history or [])]
     messages.append({"role": "user", "content": request.message})
-    
-    # Conversion des outils MCP au format Anthropic
+
     anthropic_tools = [
         {
             "name": t["name"],
@@ -79,66 +90,45 @@ async def chat(request: ChatRequest):
         }
         for t in MCP_TOOLS
     ]
-    
+
     tools_used = []
-    
-    # Appel Claude avec les outils
-    response = client.messages.create(
+
+    response = claude.messages.create(
         model="claude-sonnet-4-20250514",
         max_tokens=1024,
         system=(
             "You are an AI assistant for a Cameroonian eGov platform. "
-            "You have access to real-time data from the World Bank API for Cameroon. "
-            "Always use the available tools to fetch real data before answering. "
+            "You have access to real-time World Bank data for Cameroon. "
+            "Always use available tools to fetch real data before answering. "
             "Respond in the same language as the user (French or English). "
-            "Be concise, clear, and present data in a structured way."
+            "Be concise and present data clearly."
         ),
         messages=messages,
         tools=anthropic_tools,
     )
-    
-    # Gestion des tool_use (boucle d'exécution MCP)
+
     while response.stop_reason == "tool_use":
         tool_uses = [b for b in response.content if b.type == "tool_use"]
-        
-        # Ajouter la réponse assistant avec les tool_use
         messages.append({"role": "assistant", "content": response.content})
-        
-        # Exécuter chaque outil et collecter les résultats
+
         tool_results = []
-        for tool_use in tool_uses:
-            logger.info(f"Tool called: {tool_use.name}")
-            result = await execute_tool(tool_use.name, tool_use.input)
-            
-            tools_used.append(ToolCall(
-                name=tool_use.name,
-                input=tool_use.input,
-                result=result
-            ))
-            
+        for tu in tool_uses:
+            result = await execute_tool(tu.name, tu.input)
+            tools_used.append(ToolCall(name=tu.name, input=tu.input, result=result))
             tool_results.append({
                 "type": "tool_result",
-                "tool_use_id": tool_use.id,
+                "tool_use_id": tu.id,
                 "content": json.dumps(result)
             })
-        
+
         messages.append({"role": "user", "content": tool_results})
-        
-        # Rappel Claude avec les résultats
-        response = client.messages.create(
+        response = claude.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=1024,
-            system=(
-                "You are an AI assistant for a Cameroonian eGov platform. "
-                "Respond in the same language as the user. Be concise and structured."
-            ),
+            system="You are an AI assistant for a Cameroonian eGov platform. Respond in the user's language.",
             messages=messages,
             tools=anthropic_tools,
         )
-    
-    # Extraire le texte final
-    final_text = " ".join(
-        b.text for b in response.content if hasattr(b, "text")
-    )
-    
+
+    final_text = " ".join(b.text for b in response.content if hasattr(b, "text"))
     return ChatResponse(response=final_text, tools_used=tools_used)
