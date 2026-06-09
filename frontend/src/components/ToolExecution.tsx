@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronUp, Zap } from 'lucide-react'
 import { useState } from 'react'
-import { ToolCall } from '../lib/api'
+import type { ToolCall } from '../lib/api'
 
 
 interface Props {
