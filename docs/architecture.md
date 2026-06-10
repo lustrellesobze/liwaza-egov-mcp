@@ -1,4 +1,5 @@
 # Architecture Decision Document
+
 ## Current Architecture
 
 ## Deployed URLs
@@ -10,7 +11,6 @@
 | API Documentation | https://liwaza-egov-backend.onrender.com/docs |
 | MCP Tools Endpoint | https://liwaza-egov-backend.onrender.com/mcp/tools |
 | Health Check | https://liwaza-egov-backend.onrender.com/health |
-
 
 ### Architecture Diagram
 ┌─────────────────────────────────────────────────────────┐
@@ -48,7 +48,7 @@
 - **Frontend**: Vercel (CDN, global edge network)
 - **Backend**: Render (free tier, auto-deploy from GitHub)
 - **External APIs**: Anthropic API + World Bank API (public)
-- **CI/CD**: GitHub Actions (test + deploy on push to main)
+- **CI/CD**: GitHub Actions (test + deploy on push to master)
 
 ### Data Flow
 User Input → React → POST /mcp/chat → Claude Sonnet
@@ -110,6 +110,27 @@ At 10+ engineers, splitting into separate repos would be justified.
 - Observability: Prometheus + Grafana + ELK stack
 - Cost optimization: cache LLM responses for identical queries
 
+## Cost Considerations
+
+### Current (MVP — Free tier)
+- Render free tier: $0/month
+- Vercel free tier: $0/month
+- Anthropic API: ~$5-20/month at low traffic
+- World Bank API: free, no limits
+
+### At 1,000 users
+- Render Starter: $7/month
+- Anthropic API: ~$50-100/month
+- Redis cache (Upstash free tier): $0
+
+### At 100,000 users
+- Kubernetes (GKE): ~$200-500/month
+- Anthropic API or self-hosted Llama: $500-2,000/month
+- PostgreSQL (managed): ~$50/month
+- Redis cluster: ~$100/month
+- **Key optimization**: caching LLM responses for identical queries
+  can reduce Anthropic API costs by 60-80%
+
 ## Security Considerations
 
 - API keys stored in environment variables only
@@ -117,3 +138,6 @@ At 10+ engineers, splitting into separate repos would be justified.
 - Input validation via Pydantic on all endpoints
 - No user data stored (stateless architecture)
 - HTTPS enforced on both Vercel and Render
+- API key authentication on MCP endpoints (X-API-Key header)
+- secrets.compare_digest used to prevent timing attacks
+- GitHub push protection blocks accidental secret commits
