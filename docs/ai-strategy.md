@@ -8,7 +8,7 @@ African context, government data, bilingual (FR/EN), cost sensitivity.
 
 ## Current Model: Claude Sonnet 4
 
-We use **claude-sonnet-4-20250514** as the primary model.
+We use **claude-sonnet-4-5** as the primary model.
 
 ### Why Claude Sonnet?
 - Best tool use / function calling reliability in its class

@@ -1,6 +1,16 @@
 # Architecture Decision Document
-
 ## Current Architecture
+
+## Deployed URLs
+
+| Service | URL |
+|---------|-----|
+| Frontend | https://liwaza-egov-mcp.vercel.app |
+| Backend API | https://liwaza-egov-backend.onrender.com |
+| API Documentation | https://liwaza-egov-backend.onrender.com/docs |
+| MCP Tools Endpoint | https://liwaza-egov-backend.onrender.com/mcp/tools |
+| Health Check | https://liwaza-egov-backend.onrender.com/health |
+
 
 ### Architecture Diagram
 ┌─────────────────────────────────────────────────────────┐
