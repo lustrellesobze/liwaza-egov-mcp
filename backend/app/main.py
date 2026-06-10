@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Liwaza eGov MCP API",
-    description="SOBZE-native eGov platform du Cameroun powered by MCP",
+    description="AI-native eGov platform for Cameroon powered by MCP",
     version="1.0.0"
 )
 
