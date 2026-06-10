@@ -1,19 +1,14 @@
-import { Globe, Zap } from 'lucide-react'
+import logo from '../assets/liwaza-logo.png'
+import { Zap } from 'lucide-react'
 
 export default function Header() {
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900">
+    <header className="flex items-center justify-between px-6 py-3 border-b border-slate-700 bg-slate-900">
       <div className="flex items-center gap-3">
-        <div className="p-2 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-lg shadow-green-500/20">
-          <Globe className="w-5 h-5 text-white" />
-        </div>
-        <div>
-          <h1 className="text-white font-bold text-lg leading-none">
-            Liwaza <span className="text-green-400">eGov</span>
-          </h1>
-          <p className="text-slate-400 text-xs">
-            Plateforme IA — Données publiques Cameroun
-          </p>
+        <img src={logo} alt="Liwaza" className="h-8 brightness-0 invert" />
+        <div className="border-l border-slate-600 pl-3">
+          <p className="text-white font-semibold text-sm leading-none">eGov</p>
+          <p className="text-slate-400 text-xs">Données publiques Cameroun</p>
         </div>
       </div>
       <div className="flex items-center gap-2 bg-slate-800 px-3 py-1.5 rounded-full border border-slate-700">
