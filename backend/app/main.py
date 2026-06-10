@@ -4,6 +4,7 @@ import secrets
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import APIKeyHeader
+from fastapi.responses import RedirectResponse
 from pydantic import BaseModel
 from typing import Optional
 import anthropic
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="Liwaza eGov MCP API",
-    description="AI-native eGov platform for Cameroon",
+    description="AI-native eGov platform for Cameroon powered by MCP",
     version="1.0.0"
 )
 
@@ -51,6 +52,10 @@ class ToolCall(BaseModel):
 class ChatResponse(BaseModel):
     response: str
     tools_used: list[ToolCall] = []
+
+@app.get("/", include_in_schema=False)
+def root():
+    return RedirectResponse(url="/docs")
 
 @app.get("/health")
 def health():
