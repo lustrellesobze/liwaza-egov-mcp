@@ -114,7 +114,7 @@ export default function ChatInterface({ onFirstMessage }: Props) {
         ...prev,
         {
           role: 'assistant',
-          content: '❌ Erreur de connexion. Vérifiez que le backend tourne.',
+          content: 'Connection error. Please try again. .',
         },
       ])
     } finally {
