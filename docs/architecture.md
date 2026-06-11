@@ -16,21 +16,21 @@
 ┌─────────────────────────────────────────────────────────┐
 │                    USER BROWSER                         │
 │              React Frontend (MCP Client)                │
-│                  Vercel — Port 443                      │
+│                  Vercel - Port 443                      │
 └─────────────────────┬───────────────────────────────────┘
 │ HTTPS (REST/JSON)
 ▼
 ┌─────────────────────────────────────────────────────────┐
 │               Python MCP Server                         │
 │            FastAPI + Anthropic SDK                      │
-│                Render — Port 8000                       │
+│                Render - Port 8000                       │
 └──────────┬──────────────────────┬───────────────────────┘
 │                      │
 ▼                      ▼
 ┌──────────────────┐   ┌─────────────────────────────────┐
 │  Anthropic API   │   │       World Bank API             │
 │  Claude Sonnet   │   │  api.worldbank.org/v2/country/  │
-│  (LLM + Tools)   │   │  CMR — Public, no auth needed   │
+│  (LLM + Tools)   │   │  CMR - Public, no auth needed   │
 └──────────────────┘   └─────────────────────────────────┘
 ### Service Interactions
 

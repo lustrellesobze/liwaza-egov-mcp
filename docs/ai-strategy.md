@@ -79,7 +79,7 @@ We use **claude-sonnet-4-5** as the primary model.
 - **Quality**: Good, especially for French language tasks
 - **Cost**: Very competitive
 - **Latency**: Fast
-- **Privacy**: European infrastructure — strongest GDPR compliance
+- **Privacy**: European infrastructure - strongest GDPR compliance
 - **Self-hosting**: Mistral models available via Ollama
 - **French support**: Best-in-class (French company)
 - **Verdict**: Excellent alternative for French-first markets.
@@ -121,4 +121,4 @@ We use **claude-sonnet-4-5** as the primary model.
 ### Security
 - API keys stored in environment variables
 - No user authentication data processed by LLM
-- All queries are about public economic data — low sensitivity
+- All queries are about public economic data - low sensitivity
