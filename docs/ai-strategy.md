@@ -12,7 +12,7 @@ We use **claude-sonnet-4-5** as the primary model.
 
 ### Why Claude Sonnet?
 - Best tool use / function calling reliability in its class
-- Strong French language support — critical for Cameroon
+- Strong French language support  critical for Cameroon
 - Lower cost than Opus while maintaining high quality
 - Fast response times (< 3s for most queries)
 - Anthropic's MCP protocol aligns perfectly with our architecture
@@ -26,7 +26,7 @@ We use **claude-sonnet-4-5** as the primary model.
 - **Privacy**: Data processed by OpenAI servers in the US
 - **GDPR**: Requires data processing agreement
 - **Verdict**: Strong alternative, but OpenAI has no African
-  infrastructure — latency from Cameroon may be higher
+  infrastructure  latency from Cameroon may be higher
 
 ### GPT-4o (OpenAI)
 - **Quality**: High, optimized for speed
@@ -35,7 +35,7 @@ We use **claude-sonnet-4-5** as the primary model.
 - **Privacy**: Same as GPT-4.1
 - **Verdict**: Good for real-time chat but overkill for our use case
 
-### Claude Sonnet (Anthropic) ✅ CHOSEN
+### Claude Sonnet (Anthropic) CHOSEN
 - **Quality**: Excellent tool use, strong French support
 - **Cost**: ~$3/M input tokens (Sonnet 4)
 - **Latency**: ~1-3 seconds
@@ -46,7 +46,7 @@ We use **claude-sonnet-4-5** as the primary model.
 
 ### Claude Opus (Anthropic)
 - **Quality**: Highest available
-- **Cost**: ~$15/M input tokens — 5x more expensive
+- **Cost**: ~$15/M input tokens  5x more expensive
 - **Latency**: Slower than Sonnet
 - **Verdict**: Reserved for complex multi-step reasoning tasks.
   Not justified for simple data retrieval queries.
@@ -63,12 +63,12 @@ We use **claude-sonnet-4-5** as the primary model.
 - **Verdict**: Strong alternative especially for long document
   processing. Worth evaluating for future features.
 
-### Llama (Meta — Open Source)
+### Llama (Meta - Open Source)
 - **Quality**: Llama 3.3 70B approaches GPT-4 quality
 - **Cost**: Free if self-hosted
 - **Latency**: Depends on hardware
-- **Privacy**: Full control — data never leaves your servers
-- **Self-hosting**: YES — key advantage for government data
+- **Privacy**: Full control  data never leaves your servers
+- **Self-hosting**: YES : key advantage for government data
 - **GDPR**: Full compliance possible when self-hosted
 - **Verdict**: Best option for a production government platform
   where citizen data privacy is paramount. Recommended for
@@ -88,17 +88,17 @@ We use **claude-sonnet-4-5** as the primary model.
 
 ## Recommended Strategy by Phase
 
-### Phase 1 (Current — MVP)
+### Phase 1 (Current - MVP)
 - Claude Sonnet 4 via API
 - Simple, fast, reliable
 - Cost: ~$10-50/month at low traffic
 
-### Phase 2 (Growth — 1,000+ users)
+### Phase 2 (Growth -1,000+ users)
 - Evaluate Mistral Large for French queries
 - Add response caching to reduce API costs
 - A/B test Claude vs Mistral for user satisfaction
 
-### Phase 3 (Scale — Government contract)
+### Phase 3 (Scale - Government contract)
 - Self-host Llama 3.3 70B on African cloud infrastructure
 - Zero data leaves the country
 - Full GDPR and local data sovereignty compliance

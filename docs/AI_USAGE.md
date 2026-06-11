@@ -2,13 +2,12 @@
 
 ## AI Tools Used
 
-| Tool | Purpose |
-|------|---------|
-| Claude (claude.ai) | Primary assistant throughout the assessment |
+
+Claude (claude.ai) | Primary assistant throughout the assessment 
 
 ## How I Used AI
 
-I used Claude as a productivity tool — not as a replacement for
+I used Claude as a productivity tool  not as a replacement for
 engineering judgment. Every piece of code generated was:
 
 1. Read and understood line by line
@@ -56,6 +55,6 @@ engineering judgment. Every piece of code generated was:
 ## My Responsibility
 
 I take full ownership of all technical decisions in this project.
-AI accelerated my productivity, but every decision — from choosing
+AI accelerated my productivity, but every decision  from choosing
 the World Bank API to the monorepo structure to the deployment
-choices — was made and justified by me.
+choices  was made and justified by me.

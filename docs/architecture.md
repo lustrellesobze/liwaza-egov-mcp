@@ -5,7 +5,7 @@
 ## Deployed URLs
 
 | Service | URL |
-|---------|-----|
+
 | Frontend | https://liwaza-egov-mcp.vercel.app |
 | Backend API | https://liwaza-egov-backend.onrender.com |
 | API Documentation | https://liwaza-egov-backend.onrender.com/docs |
@@ -61,7 +61,7 @@ User Input → React → POST /mcp/chat → Claude Sonnet
 MCP (Model Context Protocol) is the emerging standard for AI-native
 backends. It separates tool definitions from business logic, making
 the system extensible. Adding a new government data source means
-adding one tool — no frontend changes needed.
+adding one tool - no frontend changes needed.
 
 ### Why World Bank API?
 - Fully public, no authentication required
@@ -94,7 +94,7 @@ At 10+ engineers, splitting into separate repos would be justified.
 
 ### 1,000 users
 - Add Redis cache for World Bank responses (TTL: 1 hour)
-- World Bank data doesn't change daily — caching is safe
+- World Bank data doesn't change daily - caching is safe
 - Add rate limiting per IP
 
 ### 10,000 users
@@ -112,7 +112,7 @@ At 10+ engineers, splitting into separate repos would be justified.
 
 ## Cost Considerations
 
-### Current (MVP — Free tier)
+### Current (MVP - Free tier)
 - Render free tier: $0/month
 - Vercel free tier: $0/month
 - Anthropic API: ~$5-20/month at low traffic
