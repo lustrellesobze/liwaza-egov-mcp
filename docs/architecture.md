@@ -134,10 +134,27 @@ At 10+ engineers, splitting into separate repos would be justified.
 ## Security Considerations
 
 - API keys stored in environment variables only
-- CORS configured to allow only frontend domain in production
-- Input validation via Pydantic on all endpoints
-- No user data stored (stateless architecture)
+- CORS origins are configurable through `ALLOWED_ORIGINS` (comma-separated).
+  The default is `*` so the public demo keeps working; in production it
+  should be set to the frontend domain
+- Input validation via Pydantic on the chat endpoint: message length (1 to 2000
+  characters), history size (at most 20 messages), role restricted to
+  `user` or `assistant`; the `years` argument of the tools is bounded (1 to 30)
+- No user data stored (stateless architecture); user messages are not written
+  to the logs, only their length
 - HTTPS enforced on both Vercel and Render
-- API key authentication on MCP endpoints (X-API-Key header)
-- secrets.compare_digest used to prevent timing attacks
+- Optional API key authentication on `/mcp/*` endpoints (`X-API-Key` header):
+  enabled when `MCP_API_KEY` is set, disabled when it is empty. The key is
+  compared with `secrets.compare_digest` to prevent timing attacks. The public
+  demo runs with the key unset because a browser frontend cannot keep a secret
+- Errors from the Anthropic API return a 502, and a failing World Bank call is
+  reported to the model as a tool error instead of crashing the request
+- Tool results are treated as data in the system prompt, and the tool loop is
+  capped at 5 rounds
 - GitHub push protection blocks accidental secret commits
+
+### Known limitations
+
+- No rate limiting yet
+- No full protection against prompt injection (the system prompt only reduces the risk)
+- No user authentication (MVP scope)

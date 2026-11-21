@@ -93,7 +93,7 @@ pytest tests/ -v
 ```
 
 ### Test Results
-- 12 tests passing
+- 19 tests passing
 - Unit tests: MCP tools against real World Bank API
 - Integration tests: FastAPI endpoints
 
@@ -101,7 +101,7 @@ pytest tests/ -v
 
 ### What is tested
 - **Unit tests** (`tests/test_tools.py`): Each MCP tool is tested individually against the real World Bank API — `get_gdp_data`, `get_population_data`, `get_inflation_data`, `get_unemployment_data`, `get_country_info`
-- **Integration tests** (`tests/test_api.py`): FastAPI endpoints — `/health`, `/mcp/tools`, `/mcp/chat` (missing body → 422), API key authentication
+- **Integration tests** (`tests/test_api.py`): FastAPI endpoints — `/health`, `/mcp/tools`, `/mcp/chat` (missing body, empty or oversized message, invalid role → 422), API key authentication (missing, wrong and valid key), and bounds of the `years` argument
 
 ### What is NOT tested
 - **Frontend components**: No React unit tests — time constraints, and the frontend is a thin client that delegates all logic to the backend
@@ -209,7 +209,7 @@ Every push to `master` triggers:
 
 ## Assumptions & Tradeoffs
 
-- **No user auth**: MVP scope — API key protects MCP endpoints; user login not required
+- **No user auth**: MVP scope — an optional API key (`MCP_API_KEY`) can protect MCP endpoints; user login not required
 - **Stateless**: No database — conversation history lives in React state only
 - **World Bank API**: Data updated annually — no caching needed for MVP
 - **Free tier**: Render spins down after 15 min inactivity — first request ~30s cold start

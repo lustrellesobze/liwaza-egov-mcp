@@ -8,6 +8,16 @@ from app.tools.country_info import get_country_info
 
 logger = logging.getLogger(__name__)
 
+MIN_YEARS, MAX_YEARS, DEFAULT_YEARS = 1, 30, 5
+
+
+def _years(tool_input: dict) -> int:
+    """Validate the 'years' argument: integer between 1 and 30, default 5."""
+    value = tool_input.get("years", DEFAULT_YEARS)
+    if isinstance(value, bool) or not isinstance(value, int):
+        return DEFAULT_YEARS
+    return max(MIN_YEARS, min(MAX_YEARS, value))
+
 # Définition des 5 outils MCP exposés
 MCP_TOOLS = [
     {
@@ -62,21 +72,21 @@ MCP_TOOLS = [
 
 async def execute_tool(tool_name: str, tool_input: dict) -> dict:
     """Exécute un outil MCP et retourne le résultat"""
-    logger.info(f"Executing MCP tool: {tool_name} with input: {tool_input}")
+    logger.info("Executing MCP tool: %s", tool_name)
     
     try:
         if tool_name == "get_gdp_data":
-            return await get_gdp_data(tool_input.get("years", 5))
+            return await get_gdp_data(_years(tool_input))
         elif tool_name == "get_population_data":
-            return await get_population_data(tool_input.get("years", 5))
+            return await get_population_data(_years(tool_input))
         elif tool_name == "get_inflation_data":
-            return await get_inflation_data(tool_input.get("years", 5))
+            return await get_inflation_data(_years(tool_input))
         elif tool_name == "get_unemployment_data":
-            return await get_unemployment_data(tool_input.get("years", 5))
+            return await get_unemployment_data(_years(tool_input))
         elif tool_name == "get_country_info":
             return await get_country_info()
         else:
             raise ValueError(f"Unknown tool: {tool_name}")
     except Exception as e:
-        logger.error(f"Tool execution error: {e}")
+        logger.error("Tool execution error: %s", e)
         raise
